@@ -4,7 +4,7 @@ import { DataSource } from "typeorm";
 import { AppDataSource } from "../../../data-source";
 import { User } from "../../../entities/User.entity";
 
-describe("Creating an User", () => {
+describe("Getting all Users", () => {
   let connection: DataSource;
 
   beforeAll(async () => {
@@ -19,7 +19,7 @@ describe("Creating an User", () => {
     await connection.destroy();
   });
 
-  test("Service function Create User should create an user and return its values", async () => {
+  test("Service function getAll Users should create an user and get it on the database", async () => {
     const firstName = "kaueh";
     const lastName = "prats";
     const email = "kaueh1234@gmail.com";
@@ -40,19 +40,10 @@ describe("Creating an User", () => {
 
     const newUser = await UserService.create(mockRequest);
 
-    const { id } = newUser;
+    const { courses, ...userWOCourses } = newUser;
 
-    expect(newUser).toEqual(
-      expect.objectContaining({
-        id: id,
-        firstName,
-        lastName,
-        email,
-        isAdm: false,
-        createdAt,
-        updatedAt,
-        courses: [],
-      })
-    );
+    const users = await UserService.getAll();
+
+    expect(users).toEqual(expect.arrayContaining([userWOCourses]));
   });
 });

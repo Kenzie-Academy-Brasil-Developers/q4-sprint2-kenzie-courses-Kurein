@@ -4,7 +4,7 @@ import { DataSource } from "typeorm";
 import { AppDataSource } from "../../../data-source";
 import { User } from "../../../entities/User.entity";
 
-describe("Creating an User", () => {
+describe("Updating an User", () => {
   let connection: DataSource;
 
   beforeAll(async () => {
@@ -19,7 +19,7 @@ describe("Creating an User", () => {
     await connection.destroy();
   });
 
-  test("Service function Create User should create an user and return its values", async () => {
+  test("Service function update User should create an user and update it on the database", async () => {
     const firstName = "kaueh";
     const lastName = "prats";
     const email = "kaueh1234@gmail.com";
@@ -40,19 +40,26 @@ describe("Creating an User", () => {
 
     const newUser = await UserService.create(mockRequest);
 
-    const { id } = newUser;
+    mockRequest["user"] = newUser as User;
+    mockRequest["validated"] = {
+      firstName: "Roberta",
+      lastName: "Oliveira",
+      updatedAt: new Date(),
+    } as User;
 
-    expect(newUser).toEqual(
-      expect.objectContaining({
-        id: id,
-        firstName,
-        lastName,
-        email,
-        isAdm: false,
-        createdAt,
-        updatedAt,
-        courses: [],
-      })
-    );
+    const updatedUser = await UserService.update(mockRequest);
+
+    const updatedUserModel = {
+      firstName: "Roberta",
+      lastName: "Oliveira",
+      email,
+      createdAt,
+      updatedAt: mockRequest["validated"].updatedAt,
+      id: newUser.id,
+      isAdm: false,
+      courses: [],
+    };
+
+    expect(updatedUser).toEqual(updatedUserModel);
   });
 });
